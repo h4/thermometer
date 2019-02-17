@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name sensors)(type Legacy)(uri /Users/h4/Projects/thermometer/pcb/sensors.lib)(options "")(descr ""))
+)
