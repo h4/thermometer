@@ -40,7 +40,7 @@ void setup()
 
   wifiManager.begin();
   boardInfo.staConnectTime = millis();
-  setupRoutes(server, boardInfo);
+  setupRoutes(server, boardInfo, eeprom_data);
 
   server.begin();
 

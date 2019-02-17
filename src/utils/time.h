@@ -1,5 +1,7 @@
 #include "WString.h"
 
+#ifndef HUMAN_TIME_MILLIS
+#define HUMAN_TIME_MILLIS
 String humanTimeMillis(unsigned long milli) {
   String s;
 
@@ -28,3 +30,4 @@ String humanTimeMillis(unsigned long milli) {
 
   return s;
 }
+#endif
