@@ -40,4 +40,5 @@ struct eeprom_data_t {
 };
 #endif
 
-void readSettings(struct eeprom_data_t eeprom_data, system_info_t& info);
+void readSettings(eeprom_data_t& eeprom_data, system_info_t& info);
+void writeSettings(eeprom_data_t& eeprom_data);

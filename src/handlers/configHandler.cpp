@@ -7,6 +7,8 @@
 ConfigHandler::ConfigHandler(system_info_t &info, eeprom_data_t& eeprom_data)
 {
     _info = info;
+    Serial.println("Construct config handler");
+    Serial.print("SSID: "); Serial.println(eeprom_data.STAssid);
     _eeprom_data = eeprom_data;
 }
 
@@ -113,10 +115,8 @@ void ConfigHandler::displayForm(ESP8266WebServer &server)
 
   s += "<br>";
 
-
   s += "<br>ssid: <input type=text name=ssid size=30 maxlength=16 value='";
   s += _eeprom_data.STAssid;
-
   s += "' />";
   //if (clientConfigAllowed == true)
   //{
@@ -165,11 +165,83 @@ void ConfigHandler::displayForm(ESP8266WebServer &server)
   //else
   //  s += "<input type='submit' value='Save' disabled=\"disabled\"> changes disabled from external wifi</form>";
 
-
-
   s += "</html>\r\n\r\n";
   server.send(200, "text/html", s);
 }
 
 void ConfigHandler::processForm(ESP8266WebServer &server)
-{}
+{
+    String s = "";
+    Serial.println("config change request");
+
+    if (server.arg("senderEnabled") == "true")
+      _eeprom_data.senderEnabled = true;
+    else
+      _eeprom_data.senderEnabled = false;
+
+    if (server.arg("STAenabled") == "true")
+      _eeprom_data.STAenabled = true;
+    else
+      _eeprom_data.STAenabled = false;
+
+    if (server.arg("disableAP") == "true")
+      _eeprom_data.disableAP = true;
+    else
+      _eeprom_data.disableAP = false;
+
+    if (server.arg("CONFIGauthEnabled") == "true")
+      _eeprom_data.CONFIGauthEnabled = true;
+    else
+      _eeprom_data.CONFIGauthEnabled = false;
+
+    String lPASS;
+    lPASS = server.arg("pass");
+
+    server.arg("ssid").toCharArray(_eeprom_data.STAssid, sizeof(_eeprom_data.STAssid));
+    lPASS.toCharArray(_eeprom_data.STApass, sizeof(_eeprom_data.STApass));
+
+    server.arg("CONFIGuser").toCharArray(_eeprom_data.CONFIGuser, sizeof(_eeprom_data.CONFIGuser));
+    server.arg("CONFIGpass").toCharArray(_eeprom_data.CONFIGpass, sizeof(_eeprom_data.CONFIGpass));
+
+    writeSettings(_eeprom_data);
+
+    if (server.arg("rebootRq") == "on")
+    {
+
+      s += "<head>";
+      s += "<meta http-equiv=\"refresh\" content=\"20;url=/c\">";
+      s += "</head>";
+      s += "REDIRECTING in 20S";
+
+      s += "<br><br>AP address: <a href=\"http://";
+      //s += ipAPstr;
+      s += "\">";
+      //s += ipAPstr;
+      s += "</a>";
+
+      //if (ipSTAstr.length() > 0)
+      //{
+      //  s += ", STA address: <a href=\"http://";
+      //  s += ipSTAstr;
+      //  s += "\">";
+      //  s += ipSTAstr;
+      //  s += "</a>";
+      //}
+
+      s += "</html>\r\n\r\n";
+
+
+      //rebootReq = true;
+    }
+    else
+    {
+      //STAinit();
+      s = "HTTP/1.1 303 See Other";
+      s += "\r\nLocation: /c";
+      s += "\r\n\r\n";
+
+    }
+    server.sendContent(s);
+    //client.print(s);
+    return;
+}

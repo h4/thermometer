@@ -9,7 +9,7 @@ boolean setEEPROM = false;
 uint32_t memcrc; 
 uint8_t *p_memcrc = (uint8_t*)&memcrc;
 
-void readSettings(struct eeprom_data_t eeprom_data, system_info_t& info)
+void readSettings(eeprom_data_t& eeprom_data, system_info_t& info)
 {
   int i;
   uint32_t datacrc;
@@ -33,9 +33,12 @@ void readSettings(struct eeprom_data_t eeprom_data, system_info_t& info)
   {
     info.isEepromSet = true;
     memcpy(&eeprom_data, eeprom_data_tmp, sizeof(eeprom_data));
+    Serial.println("Settings read");
+    Serial.print("SSID: "); Serial.println(eeprom_data.STAssid);
   }
   else
   {
+    Serial.println("Load defaults");
     eeprom_data.senderEnabled = DEFAULT_SENDER_ENABLED;
     eeprom_data.STAenabled = DEFAULT_STA_ENABLED;
     eeprom_data.disableAP = DEFAULT_DISABLE_AP;
@@ -45,4 +48,27 @@ void readSettings(struct eeprom_data_t eeprom_data, system_info_t& info)
     strncpy(eeprom_data.CONFIGuser, CONFIG_HTTP_USER_DEFAULT, sizeof(CONFIG_HTTP_USER_DEFAULT));
     strncpy(eeprom_data.CONFIGpass, CONFIG_HTTP_PASSWORD_DEFAULT, sizeof(CONFIG_HTTP_PASSWORD_DEFAULT));
   }
+}
+
+void writeSettings(eeprom_data_t& eeprom_data)
+{
+  int i;
+  byte eeprom_data_tmp[sizeof(eeprom_data)];
+
+  EEPROM.begin(sizeof(eeprom_data) + sizeof(memcrc));
+
+  memcpy(eeprom_data_tmp, &eeprom_data, sizeof(eeprom_data));
+
+  for (i = EEPROM_START; i < EEPROM_START+sizeof(eeprom_data); i++)
+  {
+    EEPROM.write(i, eeprom_data_tmp[i]);
+  }
+  memcrc = crc_byte(eeprom_data_tmp, sizeof(eeprom_data_tmp));
+
+  EEPROM.write(i++, p_memcrc[0]);
+  EEPROM.write(i++, p_memcrc[1]);
+  EEPROM.write(i++, p_memcrc[2]);
+  EEPROM.write(i++, p_memcrc[3]);
+
+  EEPROM.commit();
 }
