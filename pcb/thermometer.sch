@@ -414,4 +414,8 @@ Wire Wire Line
 Connection ~ 6300 2750
 Wire Wire Line
 	6300 1850 6300 2100
+Text Label 7750 5250 0    50   ~ 0
+SDA
+Text Label 7750 5050 0    50   ~ 0
+SCL
 $EndSCHEMATC
