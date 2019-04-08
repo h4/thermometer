@@ -27,7 +27,6 @@ void configModeCallback (WiFiManager *myWiFiManager) {
 void handleRoot() {
   String message = "";
   message += bmp.readTemperature();
-  message += " °C";
   server.send(200, "text/plain", message);
 }
 
@@ -65,7 +64,7 @@ void setupWiFi() {
   Serial.print("IP Address: ");
   WiFi.enableAP(0);
   Serial.println(WiFi.localIP());
-  ticker.attach(0.6, tick);
+  ticker.attach(0.9, tick);
 }
 
 void setupSensor() {
